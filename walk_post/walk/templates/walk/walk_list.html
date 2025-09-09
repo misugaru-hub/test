@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block body %}
+
+    <h1>散歩の記録</h1>
+    <div >
+    {% for walk in walk_list %}
+
+    
+        <div class="card">
+          <div class="media">
+            <img src="{% static 'images/01.jpg' %}" class="align-self-center mr-3" alt="..." width="120">
+            <div class="media-body">
+                <h5 class="mt-0">{{ walk.distance }}km</h5>
+                <p>歩数：{{ walk.steps }}歩</p>
+                <p >コメント：{{ walk.content }}</p>
+            </div>
+          </div>  
+        </div>
+    
+        <hr>
+    {% endfor %}
+    </div>
+
+{% endblock %}
