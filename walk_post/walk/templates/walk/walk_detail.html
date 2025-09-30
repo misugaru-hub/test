@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block body %}
+
+    <div class="row my-3">
+        <div class="col-lg-12">
+            <h2>投稿日：{{ walk.created }}</h2>
+        </div>
+        
+        
+        <hr>
+        <div class="col-lg-7">
+            <h3>{{  walk.steps }}歩</h3>
+            <h5 id="distance">km</h5>
+            <p>出発地：{{ walk.startpoint }}</p>
+            <p>到着地：{{ walk.endpoint }}</p>
+            <p>天気：{{ walk.weather }}</p> 
+
+            <p>一言メモ:
+            {{ walk.content }}
+            </p>
+        </div>
+        <div class="col-lg-5">
+            {% if walk.image %}
+         　　   <img src="{{ walk.image.url }}" width="640" class="img-fluid rounded border">
+            {% else %}
+                <img src="{% static 'images/01.jpg' %}" width="640" class="img-fluid rounded border">
+            {% endif %} 
+
+        </div>
+        <div>
+        </div>
+        <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAE9B6ZoRbQznWFlJRDQFcaUjyZ7lXi0W8&callback=initDistance" async defer></script>
+            <script>
+                  function initDistance() {
+
+            const service = new google.maps.DistanceMatrixService();
+
+   
+      const origin = "{{ walk.startpoint }}" ;
+      const destination = "{{ walk.endpoint }}"
+      
+
+      const request = {
+        origins: [origin],
+        destinations: [destination],
+        travelMode: google.maps.TravelMode.WALKING,
+        unitSystem: google.maps.UnitSystem.METRIC,
+      }
+      
+
+        service.getDistanceMatrix(request).then(response => {
+        const distanceText = response.rows[0].elements[0].distance.text;
+        document.getElementById(`distance`).innerText = `距離: ${distanceText}`;
+      }).catch(error => {
+        document.getElementById(`distance`).innerText = '距離の取得に失敗しました';
+        console.error(error);
+      })
+    };
+  
+
+            </script>
+        
+    </div>
+    
+    <!-- <div class="row">
+        <div class="col-lg-12">
+            <h3>このレシピの説明</h3>
+            <p>{{ recipe.description }}</p>
+        </div>
+    </div> 
+    
+    <hr>
+    <div class="row">
+        <div class="col">
+            <p class="text-muted">投稿日：{{ recipe.created }}</p>
+        </div>
+        <div class="col">
+            <p class="text-muted">変更日：{{ recipe.modified }}</p>
+        </div>
+    </div>
+    -->
+    <hr>
+    <div class="row">
+        <div class="col-lg-12">
+            <a class="btn btn-info" href="{% url 'page-update' walk.id %}">編集</a>
+             <a class="btn btn-danger" href="{% url 'page-delete' walk.id %}">削除</a>
+             <a class="btn btn-danger" href="{% url 'map' %}">地図へ</a>
+             <a class="btn btn-info" href="{% url 'index' %}">戻る</a>
+        </div>
+    </div>
+{% endblock %}

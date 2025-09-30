@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% load crispy_forms_tags %}
+
+{% block body %}
+
+
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form|crispy }}
+
+    <div class="form_botton" ></div>        
+        <button type="submit">保存</button>
+        <button type="submit"　href="{% url 'index' %}">一覧に戻る</button>
+    </form>
+    
+</div>    
+
+{% endblock %}

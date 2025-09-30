@@ -1,26 +1,69 @@
+
 {% extends "base.html" %}
 {% load static %}
 
 {% block body %}
 
-    <h1>散歩の記録</h1>
-    <div >
-    {% for walk in walk_list %}
 
-    
-        <div class="card">
-          <div class="media">
+<div>
+  {% for walk in walk_list %}
+    <div class="card" 
+         data-origin="{{ walk.startpoint }}" 
+         data-destination="{{ walk.endpoint }}" 
+         data-index="{{ forloop.counter }}">
+      
+      <a class="card-link" href="{% url 'page-detail' walk.id %}"> 
+        <div class="media">
+          {% if walk.image %}
+            <img src="{{ walk.image.url }}" class="align-self-center mr-3" alt="..." width="120">
+          {% else %}
             <img src="{% static 'images/01.jpg' %}" class="align-self-center mr-3" alt="..." width="120">
-            <div class="media-body">
-                <h5 class="mt-0">{{ walk.distance }}km</h5>
-                <p>歩数：{{ walk.steps }}歩</p>
-                <p >コメント：{{ walk.content }}</p>
-            </div>
-          </div>  
-        </div>
-    
-        <hr>
-    {% endfor %}
+          {% endif %}
+          <div class="media-body">
+            <h3>{{ walk.created }}</h3>
+            <p>歩数：{{ walk.steps }}歩</p>       
+            <p class="distance-text" id="distance-{{ forloop.counter }}">距離を取得中...</p>
+          </div>
+        </div>  
+      </a> 
     </div>
+    <hr>
+  {% endfor %}
+</div>
 
+<!-- Google Maps API -->
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAE9B6ZoRbQznWFlJRDQFcaUjyZ7lXi0W8&callback=initDistance" async defer></script>
+
+<script>
+  function initDistance() {
+    const cards = document.querySelectorAll('.card');
+    const service = new google.maps.DistanceMatrixService();
+
+    cards.forEach(card => {
+      const origin = card.getAttribute('data-origin');
+      const destination = card.getAttribute('data-destination');
+      const index = card.getAttribute('data-index');
+
+      const request = {
+        origins: [origin],
+        destinations: [destination],
+        travelMode: google.maps.TravelMode.WALKING,
+        unitSystem: google.maps.UnitSystem.METRIC,
+      };
+
+      service.getDistanceMatrix(request).then(response => {
+        const distanceText = response.rows[0].elements[0].distance.text;
+        document.getElementById(`distance-${index}`).innerText = `距離: ${distanceText}`;
+      }).catch(error => {
+        document.getElementById(`distance-${index}`).innerText = '距離の取得に失敗しました';
+        console.error(error);
+      });
+    });
+  }
+</script>
 {% endblock %}
+
+
+
+
+

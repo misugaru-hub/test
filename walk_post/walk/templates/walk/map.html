@@ -1,0 +1,106 @@
+{% extends "base.html" %} 
+<!DOCTYPE html>
+
+{% block body %}
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>経路表示</title>
+    
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAE9B6ZoRbQznWFlJRDQFcaUjyZ7lXi0W8&libraries=places,directions"></script>
+    <style>
+        /* 地図のスタイル */
+        #map {
+            height: 500px;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="map"></div>
+
+    <script>
+        var map, directionsService, directionsRenderer;
+
+        // 地図初期化
+        function initMap() {
+            map = new google.maps.Map(document.getElementById('map'), {
+                center: { lat: 35.6811673, lng: 139.7670516 }, // 初期位置: 東京駅
+                zoom: 13
+            });
+
+            directionsService = new google.maps.DirectionsService();
+            directionsRenderer = new google.maps.DirectionsRenderer();
+            directionsRenderer.setMap(map);
+
+            // Djangoで渡されたwalklistデータをJavaScriptに受け取る
+                {% for walk in walklist %}
+                var origin = "{{ walk.startpoint }}";
+                var destination = "{{ walk.endpoint }}";
+                
+                    if (origin && destination) {
+                    calculateRoute(origin, destination);
+                    }
+                {% endfor %}
+        }
+
+        // 経路計算
+        function calculateRoute(origin, destination) {
+            directionsService.route({
+                origin: origin, // 出発地点
+                destination: destination, // 到着地点
+                travelMode: google.maps.TravelMode.WALKING, // 徒歩で経路を計算
+            }, function (response, status) {
+                if (status === google.maps.DirectionsStatus.OK) {
+                    directionsRenderer.setDirections(response); // 経路を地図に表示
+                } else {
+                    alert('経路の取得に失敗しました: ' + status);
+                }
+            });
+        }
+
+        // 初期化処理を呼び出し
+        window.onload = initMap;
+        
+    </script>
+    <script>
+      
+    </script>    
+    
+    
+    
+</body>
+</html>
+{% endblock %}
+
+<!--<head>
+<meta charset="UTF-8">
+<title>Sample_GoogleMap</title>
+
+<script src="https://maps.google.com/maps/api/js?key=AIzaSyAE9B6ZoRbQznWFlJRDQFcaUjyZ7lXi0W8&language=ja"></script>
+
+<style>
+html { height: 100% }
+body { height: 100% }
+#map { height: 100%; width: 100%}
+</style>
+</head>
+
+<body>
+<div id="map"></div>
+
+<script>
+var MyLatLng = new google.maps.LatLng(35.6811673, 139.7670516);
+var Options = {
+ zoom: 15,      //地図の縮尺値
+ center: MyLatLng,    //地図の中心座標
+ mapTypeId: 'roadmap'   //地図の種類
+};
+var map = new google.maps.Map(document.getElementById('map'), Options);
+</script>
+
+</body>
+</html>
